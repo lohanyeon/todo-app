@@ -1,8 +1,9 @@
-import { useRef, useState } from 'react';
+import { useReducer, useRef, useState } from 'react';
 import './App.css';
 import TodoEditor from './component/TodoEditor';
 import TodoList from './component/TodoList';
 import Header from './Header';
+import TestComp from './component/TestComp';
 
 const mockTodo = [
   {
@@ -23,44 +24,54 @@ const mockTodo = [
     content: "노래 연습하기",
     createdDate: new Date().getTime(),
   },
-]
+];
+
+function reducer(state, action) {
+  switch (action.type) {
+    case "CREATE":
+      return [action.newItem, ...state];
+    case "UPDATE":
+      return state.map((it) =>
+        it.id === action.targetId ? { ...it, isDone: !it.isDone } : it
+      );
+    case "DELETE":
+      return state.filter((it) => it.id !== action.targetId);
+    default:
+      return state;
+  }
+}
 
 function App() {
-
-  const isRef = useRef(3);
-  const [todo, setTodo] = useState(mockTodo);
+  const idRef = useRef(3);
+  const [todo, dispatch] = useReducer(reducer, mockTodo);
   const onCreate = (content) => {
-    const newItem = {
-      id: isRef.current,
-      content, 
-      isDone: false,
-      createdDate: new Date().getTime(),
-    };
-    setTodo([newItem, ...todo]);
-    isRef.current += 1;
+    dispatch({
+      type: "CREATE",
+      newItem: {
+        id: idRef.current,
+        content,
+        isDone: false,
+        createdDate: new Date().getTime(),
+      },
+    });
+    idRef.current += 1;
   };
   const onUpdate = (targetId) => {
-    setTodo(
-      todo.map(
-        (it) => {
-          if (it.id === targetId) {
-            return {
-              ...it, 
-              isDone: !it.isDone,
-            };
-          } else {
-            return it;
-          }
-        }
-      )
-    )
+    dispatch({
+      type: "UPDATE",
+      targetId,
+    });
   };
   const onDelete = (targetId) => {
-    setTodo(todo.filter((it) => it.id !== targetId));
+    dispatch({
+      type: "DELETE",
+      targetId,
+    });
   };
 
   return (
     <div className="App">
+      {/* <TestComp /> */}
       <Header />
       <TodoEditor onCreate={onCreate} />
       <TodoList 
