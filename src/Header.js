@@ -2,7 +2,7 @@ import React from 'react';
 import './Header.css';
 
 const Header = () => {
-    // console.log('Header 호출');
+    console.log('Header 호출');
     return (
     <div className="Header">
         <h3>Today is 📅</h3>
